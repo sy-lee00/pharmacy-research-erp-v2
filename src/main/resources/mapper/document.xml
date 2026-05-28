@@ -1,0 +1,89 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sh.haagendazo.mapper.DocumentMapper">
+	<resultMap id="docuMap" type="Project">
+		<id property="projectId" column="projectId" />
+		<result property="memberId" column="memberId" />
+		<result property="memberUserId" column="memberUserId" />
+		<result property="memberRole" column="memberRole" />
+		<result property="memberCreatedAt" column="memberCreatedAt" />
+
+		<result property="userUserId" column="userUserId" />
+		<result property="email" column="email" />
+		<result property="password" column="password" />
+		<result property="name" column="name" />
+		<result property="deptId" column="deptId" />
+		<result property="gradeId" column="gradeId" />
+		<result property="userCreatedAt" column="userCreatedAt" />
+
+		<result property="documentId" column="documentId" />
+		<result property="documentProjectId" column="documentProjectId" />
+		<result property="documentUserId" column="documentUserId" />
+		<result property="fileName" column="fileName" />
+		<result property="filePath" column="filePath" />
+		<result property="version" column="version" />
+		<result property="uploadedAt" column="uploadedAt" />
+		<result property="docuTitle" column="docuTitle" />
+		<result property="docuDesc" column="docuDesc" />
+		
+		<result property="approvalId" column="approvalId" />
+		<result property="approvalType" column="approvalType" />
+		<result property="targetId" column="targetId" />
+		<result property="approvalStatus" column="approvalStatus" />
+	</resultMap>
+<select id="docuView" parameterType="int" resultMap="docuMap">
+    SELECT
+        project_member.member_id AS memberId,
+        project_member.user_id AS memberUserId,
+        project_member.role AS memberRole,
+
+        user.user_id AS userUserId,
+        user.name AS name,
+
+        project_document.document_id AS documentId,
+        project_document.project_id AS documentProjectId,
+        project_document.user_id AS documentUserId,
+        project_document.title AS docuTitle,
+        project_document.description AS docuDesc,
+        project_document.file_name AS fileName,
+        project_document.file_path AS filePath,
+        project_document.version AS version,
+        project_document.uploaded_at AS uploadedAt,
+
+		approval.approval_id AS approvalId,
+        approval.approval_type AS approvalType,
+        approval.target_id AS targetId,
+        approval.status AS approvalStatus
+    FROM project
+    JOIN project_member
+        ON project.project_id = project_member.project_id
+    JOIN user
+        ON project_member.user_id = user.user_id
+    JOIN project_document
+        ON project_member.user_id = project_document.user_id
+        AND project_document.project_id = project.project_id
+	JOIN approval
+		ON project_document.document_id = approval.target_id
+    WHERE project.project_id=#{projectId} AND approval_type='document'
+    ORDER BY documentId
+</select>
+
+<insert id="insertDocument" parameterType="Project" useGeneratedKeys="true" keyProperty="documentId">
+    INSERT INTO project_document
+    (project_id, user_id, title, description, file_name, file_path, version, uploaded_at)
+    VALUES
+    (#{documentProjectId},
+     #{documentUserId},
+     #{docuTitle},
+     #{docuDesc},
+     #{fileName},
+     #{filePath},
+     #{version},
+     NOW()
+    )
+</insert>
+
+<insert id="docuApproval" parameterType="Project" >
+    INSERT INTO approval (project_id, requested_by, approval_content, approval_type, target_id)
+    VALUES (#{documentProjectId}, #{documentUserId}, 'Approval' ,'document', #{documentId})
+</insert>
+</mapper>

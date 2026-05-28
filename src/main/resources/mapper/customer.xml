@@ -1,0 +1,206 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sh.haagendazo.mapper.CustomerMapper">
+
+	<resultMap type="Customer" id="customerMap">
+		<id property="customerId" column="customer_id" />
+		<result property="name" column="name"/>
+		<result property="assignId" column="assign_id"/>
+		<result property="userName" column="user_name"/>
+		<result property="userId" column="user_id"/>
+		<result property="mUserId" column="muser_id"/>
+		<result property="memberId" column="member_id"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="createdMonth" column="created_month"/>
+		<result property="logId" column="log_id"/>
+		<result property="clDescription" column="cl_description"/>
+		<result property="projectId" column="project_id"/>
+		<result property="projectName" column="project_name"/>
+		<result property="projectCode" column="project_code"/>
+		<result property="logDate" column="log_date"/>
+		<result property="customerDCount" column="customer_dcount"/>
+		<result property="customerMCount" column="customer_mcount"/>
+		<result property="msgContent" column="content"/>
+	</resultMap>
+	
+	<insert id="addCustomer" parameterType="Customer">
+		INSERT INTO customer(name, department, phone, email) VALUES(#{name}, #{department}, #{phone}, #{email})
+	</insert>
+	
+	<select id="allCustomer" parameterType="Paging"
+	resultMap="customerMap">
+	SELECT
+	c.customer_id, c.department, c.name, u.name AS user_name, c.assign_id, c.phone,
+	c.email, c.created_at, MAX(p.project_name) AS project_name,
+	MAX(l.log_date) AS log_date
+	FROM customer c
+	LEFT JOIN customer_log l ON c.customer_id = l.customer_id
+	LEFT JOIN user u ON c.assign_id = u.user_id
+	LEFT JOIN project p ON l.project_id = p.project_id
+	<where>
+		<choose>
+			<when test="select == '고객명' and search != null and search != ''">
+				c.name LIKE CONCAT('%', #{search}, '%')
+			</when>
+			<when
+				test="select == '담당자명' and search != null and search != ''">
+				u.name LIKE CONCAT('%', #{search}, '%')
+			</when>
+			<when
+				test="select == '상담일자' and search != null and search != ''">
+				DATE(l.log_date) = STR_TO_DATE(#{search}, '%Y-%m-%d')
+			</when>
+		</choose>
+	</where>
+	GROUP BY c.customer_id, c.department, c.name, u.name, c.assign_id,
+	c.phone, c.email, c.created_at
+	LIMIT #{offset}, #{limit}
+	</select>
+	
+	<select id="total" parameterType="Paging" resultType="int">
+		SELECT count(DISTINCT c.customer_id)
+		FROM customer c
+		LEFT JOIN customer_log l ON c.customer_id = l.customer_id
+  		LEFT JOIN user u ON c.assign_id = u.user_id
+		<where>
+			<choose>
+				<when test="select == '고객명' and search != null and search != ''">
+					c.name LIKE CONCAT('%', #{search}, '%')
+				</when>
+				<when test="select == '담당자명' and search != null and search != ''">
+					u.name LIKE CONCAT('%', #{search}, '%')
+				</when>
+				<when test="select == '상담일자' and search != null and search != ''">
+					DATE(l.log_date) = STR_TO_DATE(#{search}, '%Y-%m-%d')
+				</when>
+			</choose>
+		</where>
+	</select>
+	
+	<select id="showCustomer" resultMap="customerMap">
+		SELECT DISTINCT c.customer_id AS customer_id, name, assign_id
+		FROM customer c
+		LEFT JOIN customer_log cl ON (c.customer_id = cl.customer_id)
+	</select>
+	
+	<select id="showCustomerDaily" resultMap="customerMap">
+	    SELECT 
+	        DATE(created_at) AS created_at,
+	        COUNT(customer_id) AS customer_dcount
+	    FROM customer
+	    GROUP BY created_at
+	    ORDER BY created_at
+	</select>
+	
+	<select id="showCustomerMonthly" resultMap="customerMap">
+	    SELECT 
+	        DATE_FORMAT(created_at, '%Y-%m') AS created_month,
+	        COUNT(DISTINCT customer_id) AS customer_mcount
+	    FROM customer
+	    GROUP BY created_month
+	    ORDER BY created_month
+	</select>
+
+	<delete id="delCustomer" parameterType="int"> 
+		DELETE FROM customer WHERE customer_id = #{customerId}
+	</delete>
+
+	<delete id="delLog" parameterType="int"> 
+		DELETE FROM customer_log WHERE log_id = #{logId}
+	</delete>
+	
+	<insert id="addLog" parameterType="Customer">
+		INSERT INTO customer_log(customer_id, description) VALUES(#{customerId}, #{description})
+	</insert>
+	
+	<select id="allLog" parameterType="Paging" resultMap="customerMap">
+		SELECT cl.log_id AS log_id, cl.description AS cl_description, c.name AS name, u.name AS user_name, c.assign_id AS assign_id, cl.project_id, p.project_name AS project_name, project_code, log_date
+		FROM customer_log cl LEFT JOIN customer c ON (cl.customer_id = c.customer_id) LEFT JOIN user u ON (assign_id = user_id) LEFT JOIN project p ON (cl.project_id = p.project_id)
+		<where>
+		<choose>
+		<when test="select == '고객명' and search != null and search != ''">
+		c.name LIKE CONCAT('%', #{search}, '%')
+		</when>
+		<when test="select == '담당자명' and search != null and search != ''">
+		u.name LIKE CONCAT('%', #{search}, '%')
+		</when>
+		<when test="select == '상담일자' and search != null and search != ''">
+		DATE(log_date) = STR_TO_DATE(#{search}, '%Y-%m-%d')
+		</when>
+		</choose>
+		</where>
+		ORDER BY log_date DESC
+		LIMIT #{offset}, #{limit}
+	</select>
+	
+	<select id="totalLog" parameterType="Paging" resultType="int">
+		SELECT COUNT(DISTINCT cl.log_id) 
+		FROM customer_log cl LEFT JOIN customer c ON (cl.customer_id = c.customer_id) LEFT JOIN user u ON (assign_id = user_id) LEFT JOIN project p ON (cl.project_id = p.project_id)
+		<where>
+			<choose>
+				<when test="select == '고객명' and search != null and search != ''">
+					c.name LIKE CONCAT('%', #{search}, '%')
+				</when>
+				<when test="select == '담당자명' and search != null and search != ''">
+					u.name LIKE CONCAT('%', #{search}, '%')
+				</when>
+				<when test="select == '상담일자' and search != null and search != ''">
+					DATE(log_date) = STR_TO_DATE(#{search}, '%Y-%m-%d')
+				</when>
+			</choose>
+		</where>
+	</select>
+	
+	<update id="updateCs" parameterType="Customer">
+		UPDATE customer SET department= #{department}, phone= #{phone}, email= #{email}, assign_id= #{assignId} WHERE customer_id = #{customerId}
+	</update>
+
+	<update id="updateLog" parameterType="Customer">
+		UPDATE customer_log SET description= #{description}, project_id= #{projectId} WHERE log_id = #{logId}
+	</update>
+	
+	<select id="myLog" resultMap="customerMap">
+		SELECT DISTINCT c.name AS name, cl.log_id AS log_id, cl.description AS cl_description, p.project_id AS project_id, p.project_name AS project_name, p.project_code AS project_code, m.member_id AS member_id, m.user_id AS muser_id, u.name AS user_name
+		FROM customer_log cl
+		left join customer c on (cl.customer_id = c.customer_id)
+		left join project p on (cl.project_id = p.project_id)
+		left join project_member m on (p.project_id = m.project_id)
+		left join user u on (m.user_id = u.user_id)
+		where m.user_id = #{userId}
+		LIMIT #{offset}, #{limit}
+	</select>
+	
+	<insert id="claimMessage" parameterType="Customer">
+		INSERT INTO message (title, content, type, target_id, receiver_id, sender_id)
+		VALUES ('클레임 건 지시사항 전달', #{content}, 'claim', #{projectId}, #{memberId}, '0')
+	</insert>
+	
+	<select id="projectLog" parameterType="Customer" resultMap="customerMap">
+		SELECT c.name AS name, cl.log_id AS log_id, cl.description AS cl_description, 
+			p.project_id AS project_id, p.project_name AS project_name, p.project_code AS project_code, 
+			u.user_id AS user_id
+		FROM customer_log cl
+		left join customer c on (cl.customer_id = c.customer_id)
+		left join project p on (cl.project_id = p.project_id)
+		left join user u on (p.user_id = u.user_id)
+		where p.project_id = #{projectId}
+	</select>
+	
+	<select id="projectMyLog" parameterType="Customer" resultMap="customerMap">
+		SELECT DISTINCT c.name AS name, cl.log_id AS log_id, cl.description AS cl_description, p.project_id AS project_id, p.project_name AS project_name, p.project_code AS project_code, m.member_id AS member_id, m.user_id AS muser_id, u.name AS user_name
+		FROM customer_log cl
+		left join customer c on (cl.customer_id = c.customer_id)
+		left join project p on (cl.project_id = p.project_id)
+		left join project_member m on (p.project_id = m.project_id)
+		left join user u on (m.user_id = u.user_id)
+		where m.user_id = #{mUserId}
+	</select>
+	
+	<select id="claimMember" parameterType="int" resultMap="customerMap">
+		SELECT DISTINCT m.user_id AS user_id, u.name AS user_name, m.member_id AS member_id
+		FROM project_member m
+		LEFT JOIN user u ON m.user_id = u.user_id
+		WHERE m.project_id = #{projectId}
+	</select>
+	
+	
+</mapper>

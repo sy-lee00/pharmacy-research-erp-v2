@@ -1,0 +1,323 @@
+/* user.css */
+
+/*
+    ================================================================
+    [1] 공통 스타일: 모든 페이지에 적용되는 기본 레이아웃 및 컴포넌트 스타일
+    ================================================================
+*/
+.customer-container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    box-sizing: border-box;
+    color: #333;
+}
+a {
+    text-decoration: none;
+    color: inherit;
+}
+h1 {
+    color: #e91e63;
+    font-weight: bolder;
+    margin-bottom: 20px;
+    padding-top: 30px;
+    text-align: center;
+}
+#regi, .auth-links {
+    margin-bottom: 20px;
+}
+#regi a, .auth-links a {
+    margin: 0 10px;
+    font-size: 1rem;
+    transition: color 0.2s;
+}
+#regi a:hover, .auth-links a:hover {
+    color: #e91e63;
+}
+.form-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+.button-group {
+    display: flex;
+    gap: 5px;
+}
+.form-container button {
+    white-space: nowrap;
+}
+.search-flex-container {
+    display: flex;
+    align-items: center;
+    width: 300px;
+    height: 2.2rem;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    background-color: white;
+}
+.search-flex-container input {
+    flex-grow: 1;
+    border: none;
+    background: none;
+}
+.clear-icon {
+    cursor: pointer;
+    color: #9999;
+    font-size: 1.2rem;
+    z-index: 10;
+    display: none;
+    padding-right: 8px;
+}
+.search-btn {
+    padding: 6px 12px;
+    border: none;
+    background-color: #e91e63;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.search-btn:hover {
+    background-color: #c2185b;
+}
+table:not(#approvalFilterTable) {
+    background-color: rgba(255, 255, 255, 0.6);
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: 20px auto;
+    color: #333;
+}
+table:not(#approvalFilterTable) th, table:not(#approvalFilterTable) td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+table:not(#approvalFilterTable) th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+table:not(#approvalFilterTable, #modifyChemicalTable) td {
+    font-size: 13px;
+    padding: 5px;
+    vertical-align: middle;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.modal-back, .delete-modal, .open-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    z-index: 1000;
+}
+.write-modal {
+    border: 1px solid grey;
+    border-radius: 10px;
+    background: white;
+    position: relative;
+    width: 400px;
+     justify-content: center;
+    align-items: center;
+    padding: 30px;
+}
+.write-modal #modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    cursor: pointer;
+    font-size: 30px;
+    border: none;
+    background: none;
+}
+.delete-modal .modal-body {
+    text-align: center;
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    max-width: 330px;
+    min-height: 100px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+
+    /* 이 부분을 추가하여 내부 콘텐츠 중앙 정렬 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* 수직 중앙 정렬 */
+    align-items: center; /* 수평 중앙 정렬 */
+}
+.pagination {
+    margin-top: 20px;
+    gap: 5px;
+    justify-content: center;
+}
+.pagination li a {
+    padding: 8px 12px;
+    border: 1px solid #e91e63;
+    border-radius: 4px;
+    color: #e91e63;
+    text-decoration: none;
+}
+.pagination li a:hover {
+    background-color: #e91e63;
+    color: white;
+}
+.pagination .active a {
+    background-color: #e91e63;
+    color: white;
+    border-color: #e91e63;
+}
+.pagination .disabled a {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/*
+    ================================================================
+    [2] 페이지별 고유 스타일: 특정 페이지에만 적용되는 스타일
+    ================================================================
+*/
+/* board.jsp 전용 스타일 */
+.board-page .table {
+    min-width: 1200px;
+    max-width: 1200px;
+}
+.board-page .table th:first-child,
+.board-page .table th:last-child,
+.board-page .table td:first-child,
+.board-page .table td:last-child {
+    width: 40px;
+}
+.board-page td a {
+    color: #e91e63;
+    text-decoration: underline;
+}
+.board-page .image-preview img {
+    width: 50px;
+    height: 50px;
+    border-radius: 5px;
+    object-fit: cover;
+    border: 1px solid #ddd;
+}
+.board-page #inputTitle {
+    width: 300px;
+}
+
+/* list.jsp 전용 스타일 */
+.list-page table {
+	width : auto;
+	min-width: 70%;
+	max-width: 70%;
+}
+
+.list-page table td input {
+    /* 기존 스타일 재정의 및 추가 */
+    display: inline-block;
+    width: auto;
+    max-width: 150px;
+    box-sizing: border-box;
+    border: 1px solid #ccc; /* 테두리 추가 */
+    background-color: #fff; /* 배경색 추가 */
+    color: #333; /* 글자색 추가 */
+    padding: 5px; /* 패딩 추가 */
+    margin: 0;
+}
+.list-page .email-link .bi-envelope-fill {
+    color: grey;
+    margin-left: 10px;
+    font-size: 1rem;
+}
+.list-page .email-link:hover .bi-envelope-fill {
+    color: #a4193d;
+}
+.log-page textarea {
+    min-width: 350px;
+    max-width: 500px;
+    min-height: 30px;
+    max-height: 250px;
+    resize: both;
+}
+.log-page .project-cell-content {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* view.jsp 전용 스타일 */
+.view-page {
+    padding-top: 100px;
+}
+.view-page .content-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+.view-page .form-section {
+    flex: 1 1 500px;
+}
+.view-page .image-section {
+    flex: 1 1 300px;
+}
+.view-page .image-section img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.view-page textarea.form-control {
+    min-height: 100px !important;
+}
+
+/*
+    ================================================================
+    [3] 반응형 디자인
+    ================================================================
+*/
+@media (max-width: 768px) {
+    .customer-container {
+        padding-top: 20px;
+    }
+    .board-page table, .list-page table, .log-page table {
+        width: 95vw;
+    }
+    .form-container {
+        flex-direction: column;
+        gap: 5px;
+    }
+}
+
+.imgbar {
+	width: 1000px;
+	height: 200px;
+	border: none;
+	padding: 15px;
+	border-radius: 8px;
+	background-size: cover;
+    background-position: center;
+    background-blend-mode: color;
+    background-color: rgba(0, 0, 0, 0.5);
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: column;
+	text-align: left;
+	overflow: none;
+}
+
+.imgbar a {
+	text-align: center;
+	color: #ddd;
+	text-decoration: none;
+}

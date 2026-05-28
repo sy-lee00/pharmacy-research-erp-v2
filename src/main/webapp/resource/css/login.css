@@ -1,0 +1,209 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-image: url(../static/door1.jpg);
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-blend-mode: color;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.container {
+    background-color: #ffffff;
+    padding: 30px; /* 위아래 패딩을 줄여서 전체 높이 축소 */
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 350px;
+    text-align: center;
+}
+
+h1 {
+    color: #333333;
+    margin-bottom: 20px; /* 제목 아래 여백 축소 */
+    font-size: 24px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 3px; /* 입력 필드 그룹 사이의 간격 축소 */
+}
+
+/* 텍스트와 입력 필드를 한 줄에 배치하기 위한 스타일 */
+.form-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* 텍스트와 입력 필드 양 끝 정렬 */
+    margin-bottom: 5px;
+    gap: 0;
+}
+
+/* 텍스트 레이블에 대한 스타일 추가 */
+.form-group span {
+    font-size: 16px;
+    color: #555555;
+    white-space: nowrap; /* 줄바꿈 방지 */
+}
+
+input[type="text"],
+input[type="password"] {
+    width: 60%; /* 입력 필드 너비 조정 */
+    padding: 8px; /* 패딩을 줄여서 높이 축소 */
+    border: 1px solid #dddddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+.button-group {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+    width: 100%;
+}
+
+.button-group button {
+    flex: 1; /* 남은 공간을 균등하게 차지하도록 함 */
+    padding: 0;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+}
+
+.button-group button input[type="submit"],
+.button-group button a {
+    display: block; /* a 태그를 블록 레벨로 변경하여 전체 버튼 영역을 채우도록 함 */
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box; /* 패딩을 너비에 포함 */
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: bold;
+    text-decoration: none;
+    color: #ffffff;
+}
+
+.button-group button input[type="submit"] {
+    background-color: #A4193D;
+    border: none; /* input submit의 기본 테두리 제거 */
+    margin: 0;
+}
+
+#emailCheckMsg {
+    /* 이메일 입력창과 동일한 너비를 갖도록 설정 */
+    width: 100%;
+    /* 텍스트가 시작점과 정렬되도록 왼쪽 정렬 */
+    text-align: left;
+    margin-top: 5px; /* 입력창과 약간의 간격 조절 */
+    margin-left: 0;
+}
+
+/* button 태그에 대한 일반적인 스타일 정의 */
+.button-group button {
+    flex: 1; /* 남은 공간을 균등하게 차지하도록 함 */
+    padding: 0;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+}
+
+/* 로그인 버튼과 홈 링크에 대한 공통 스타일 */
+.login-btn,
+.btn-home {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: bold;
+    text-decoration: none;
+    color: #ffffff;
+    transition: background-color 0.3s ease;
+}
+
+/* 로그인 버튼 전용 스타일 */
+.login-btn {
+    background-color: #A4193D;
+    border: none;
+}
+.login-btn:hover {
+    background-color: rgb(128, 0, 64);
+}
+
+/* 새로 추가된 '아이디/비밀번호 찾기' 링크 스타일 */
+.links {
+    margin-top: 15px; /* 폼과의 간격 */
+    text-align: center;
+    font-size: 14px;
+}
+
+.links .link-find {
+    color: #007bff;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.links .link-find:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+.links .divider {
+    color: #ccc;
+    margin: 0 8px; /* 구분선 좌우 간격 */
+}
+
+.form-group {
+            display: flex;
+            align-items: center;
+        }
+
+/* 라벨 텍스트를 좌측 정렬하고 너비를 고정 */
+.form-group span {
+    width: 100px;
+    text-align: left;
+    font-size: 15px;
+}
+
+/* 아이디와 비밀번호 인풋 컨테이너가 남은 공간을 모두 차지하도록 설정 */
+.id-container,
+.password-container {
+    flex-grow: 1;
+    position: relative;
+}
+
+/* 인풋 필드 자체의 너비를 100%로 설정하여 부모 컨테이너에 맞춤 */
+.id-container input,
+.password-container input {
+    width: 90%;
+    font-size: 13.5px;
+}
+
+/* 비밀번호 아이콘 위치를 인풋의 맨 오른쪽으로 변경 */
+.password-container .toggle-password {
+    position: absolute;
+    right: -55px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #ccc;
+}
+
+/* 비활성화된 버튼 스타일 */
+.login-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}

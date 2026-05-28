@@ -1,0 +1,39 @@
+Presentation / Application / Data
+FrontEnd Clinent / Backend Server
+
+ Presentation - FrontEnd Clinent
+	- 브라우저 (HTML, CSS, JS)
+	- View
+	- Vue, Angular ,*React
+		-> React - Next , 
+
+▽ 요청 Request -> API를 통해
+	-> REST(Create, Read, Update, Delete RESTful API) 
+
+		△응답 Response 
+		[WAS(Web Application Server)] 
+		- 웹 서버 (HTML, CSS, JS -> 정적인 파일)       처리  -> Data
+			 -> Servlet container
+		- tomcat
+
+ Application - Backend Server
+	- JAVA -> *Spring -> Kotlin
+	- Python
+	- JS
+     -> 비지니스 로직 
+	- Controller -> Service
+	  -> Servlet (JAVA)  -> JSP (Java Server Page) 
+
+▽ JDBC ( 1 : 1 매칭 )
+	-> JPA
+	-> *MyBatis - DB 친화적
+
+
+Data - DB -> RDBMS
+	 -> NoSQL (대량) - MongoDB (JSON)
+			- Redis
+			- Elastic
+			- Kafka
+			
+        - Model
+	-> VO, DAO	

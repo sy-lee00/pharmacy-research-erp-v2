@@ -1,0 +1,334 @@
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sh.haagendazo.mapper.ProjectMapper">
+	<resultMap id="projectMap" type="Project">
+		<id property="projectId" column="projectId" />
+		<result property="projectCode" column="projectCode" />
+		<result property="projectName" column="projectName" />
+		<result property="projectType" column="projectType" />
+		<result property="userId" column="userId" />
+		<result property="startDate" column="startDate" />
+		<result property="endDate" column="endDate" />
+		<result property="status" column="status" />
+		<result property="description" column="description" />
+		<result property="createdAt" column="createdAt" />
+		<result property="updatedAt" column="updatedAt" />
+
+		<result property="memberId" column="memberId" />
+		<result property="memberUserId" column="memberUserId" />
+		<result property="memberRole" column="memberRole" />
+		<result property="memberCreatedAt" column="memberCreatedAt" />
+
+		<result property="userUserId" column="userUserId" />
+		<result property="email" column="email" />
+		<result property="password" column="password" />
+		<result property="name" column="name" />
+		<result property="deptId" column="deptId" />
+		<result property="gradeId" column="gradeId" />
+		<result property="userCreatedAt" column="userCreatedAt" />
+		<result property="logId" column="log_id" />
+	</resultMap>
+
+	<select id="selectAll" resultMap="projectMap"
+		parameterType="Paging">
+		SELECT project.project_id AS projectId, project.project_code AS
+		projectCode, project.project_name AS projectName, project.project_type
+		AS projectType, project.user_id AS userId, project.start_date AS
+		startDate, project.end_date AS endDate, project.status AS status,
+		project_member.member_id AS memberId, project_member.user_id AS
+		memberUserId, project_member.role AS memberRole, user.user_id AS
+		userUserId, user.name AS name
+		FROM project
+		LEFT JOIN project_member ON
+		project.project_id = project_member.project_id
+		LEFT JOIN user ON
+		project_member.user_id = user.user_id
+		<where>
+			(project.user_id IS NULL OR project.user_id = 0 OR
+			project_member.role = '담당자')
+			<if test="paging.search != null and paging.search != ''">
+				<choose>
+					<when test="paging.select == 'status'">
+						AND project.status LIKE CONCAT('%',
+						#{paging.search}, '%')
+					</when>
+					<when test="paging.select == 'code'">
+						AND project.project_code LIKE CONCAT('%',
+						#{paging.search}, '%')
+					</when>
+					<when test="paging.select == 'name'">
+						AND project.project_name LIKE CONCAT('%',
+						#{paging.search}, '%')
+					</when>
+					<when test="paging.select == 'date'">
+						AND #{paging.search} BETWEEN project.start_date AND
+						project.end_date
+					</when>
+					<when test="paging.select == 'manager'">
+						AND user.name LIKE CONCAT('%', #{paging.search},
+						'%')
+					</when>
+				</choose>
+			</if>
+		</where>
+		LIMIT #{paging.offset}, #{paging.limit}
+	</select>
+
+	<select id="userProject" resultMap="projectMap"
+		parameterType="Paging">
+		SELECT project.project_id AS projectId, project.project_code AS
+		projectCode,
+		project.project_name AS projectName, project.project_type
+		AS projectType,
+		project.user_id AS userId, project.start_date AS
+		startDate, project.end_date
+		AS endDate, project.status AS status,
+		project_member.member_id AS
+		memberId,
+		project_member.user_id AS
+		memberUserId, project_member.role AS memberRole,
+		user.user_id AS
+		userUserId, user.name AS name FROM project LEFT JOIN
+		project_member
+		ON
+		project.project_id = project_member.project_id LEFT JOIN user ON
+		project_member.user_id
+		= user.user_id
+		<where>
+			project_member.user_id = #{paging.userId}
+			<if test="paging.search != null and paging.search != ''">
+				<choose>
+					<when test="paging.select == 'status'">
+						AND project.status LIKE CONCAT('%',
+						#{paging.search}, '%') </when>
+					<when test="paging.select == 'code'"> AND project.project_code LIKE CONCAT('%',
+						#{paging.search}, '%') </when>
+					<when test="paging.select == 'name'"> AND
+						project.project_name LIKE CONCAT('%',
+						#{paging.search}, '%') </when>
+					<when test="paging.select == 'date'"> AND #{paging.search} BETWEEN project.start_date
+						AND project.end_date
+					</when>
+				</choose>
+			</if>
+		</where>
+		LIMIT #{paging.offset}, #{paging.limit}
+	</select>
+
+	<select id="userStatus" resultType="int" parameterType="Paging">
+		SELECT
+		COUNT(*)
+		FROM project
+		LEFT JOIN project_member
+		ON project.project_id =
+		project_member.project_id
+		WHERE project_member.user_id = #{userId}
+		AND
+		project.status = #{status}
+	</select>
+
+	<select id="searchBar" resultMap="projectMap"
+		parameterType="Paging">
+		SELECT
+		project.project_id AS projectId,
+		project.project_code AS
+		projectCode,
+		project.project_name AS projectName,
+		project.project_type
+		AS projectType,
+		project.user_id AS userId,
+		project.start_date AS
+		startDate,
+		project.end_date AS endDate,
+		project.status AS status,
+		project.description AS description,
+		project.created_at AS createdAt,
+		project.updated_at AS updatedAt,
+
+		project_member.member_id AS memberId,
+		project_member.user_id AS memberUserId,
+		project_member.role AS
+		memberRole,
+		project_member.created_at AS memberCreatedAt,
+
+		user.user_id
+		AS userUserId,
+		user.email AS email,
+		user.password AS password,
+		user.name
+		AS name,
+		user.dept_id AS deptId,
+		user.grade_id AS gradeId,
+		user.created_at AS userCreatedAt
+		FROM project
+		LEFT JOIN project_member
+		ON project.project_id = project_member.project_id
+		LEFT JOIN user ON
+		project_member.user_id = user.user_id
+		<where>
+			<choose>
+				<when test="paging.gradeId != null and paging.role == 'ROLE_RESEARCHER'">
+					AND project_member.user_id = #{paging.userId}
+					AND (
+					project.status LIKE CONCAT('%',
+					#{paging.search}, '%')
+					OR
+					project.project_code LIKE CONCAT('%',
+					#{paging.search}, '%')
+					OR
+					project.project_name LIKE CONCAT('%',
+					#{paging.search}, '%')
+					)
+				</when>
+				<otherwise>
+					AND (project.user_id IS NULL OR project.user_id = 0 OR
+					project_member.role = '담당자')
+					AND (
+					project.status LIKE CONCAT('%',
+					#{paging.search}, '%')
+					OR project.project_code LIKE CONCAT('%',
+					#{paging.search}, '%')
+					OR project.project_name LIKE CONCAT('%',
+					#{paging.search}, '%')
+					)
+				</otherwise>
+			</choose>
+		</where>
+		LIMIT #{paging.offset}, #{paging.limit}
+	</select>
+
+	<select id="searchBarTotal" resultType="int"
+		parameterType="Paging">
+		SELECT COUNT(DISTINCT project.project_id)
+		FROM project
+		LEFT JOIN
+		project_member ON project.project_id = project_member.project_id
+		LEFT
+		JOIN user ON project_member.user_id = user.user_id
+		<where>
+		<choose>
+				<when test="paging.gradeId != null and paging.role == 'ROLE_RESEARCHER'">
+					AND project_member.user_id = #{paging.userId}
+					AND (
+					project.status LIKE CONCAT('%',
+					#{paging.search}, '%')
+					OR
+					project.project_code LIKE CONCAT('%',
+					#{paging.search}, '%')
+					OR
+					project.project_name LIKE CONCAT('%',
+					#{paging.search}, '%')
+					)
+				</when>
+				<otherwise>
+					AND (project.user_id IS NULL OR project.user_id = 0 OR
+					project_member.role = '담당자')
+					AND (
+					project.status LIKE CONCAT('%',
+					#{paging.search}, '%')
+					OR project.project_code LIKE CONCAT('%',
+					#{paging.search}, '%')
+					OR project.project_name LIKE CONCAT('%',
+					#{paging.search}, '%')
+					)
+				</otherwise>
+			</choose>
+		</where>
+	</select>
+
+	<select id="status" resultType="int" parameterType="String">
+		SELECT
+		COUNT(*) FROM project WHERE status = #{status}
+	</select>
+
+
+	<select id="duplicate" resultType="int" parameterType="String">
+		SELECT
+		COUNT(*) FROM project WHERE project_code = #{projectCode}
+	</select>
+
+	<delete id="projectSelectDelete" parameterType="ArrayList">
+		DELETE FROM project WHERE project_id IN
+		<foreach collection="idList" item="projectId" open="("
+			close=")" separator=",">
+			#{projectId}
+		</foreach>
+	</delete>
+
+	<insert id="projectInsert" parameterType="Project"
+		useGeneratedKeys="true" keyProperty="projectId">
+		INSERT INTO project(project_code,
+		project_name, project_type, status,
+		start_date, end_date, description)
+		VALUES (#{projectCode}, #{projectName}, #{projectType}, #{status},
+		#{startDate, jdbcType=DATE}, #{endDate, jdbcType=DATE},
+		#{description})
+	</insert>
+
+	<select id="total" resultType="int">
+		SELECT COUNT(DISTINCT project.project_id)
+		FROM project
+		LEFT JOIN
+		project_member ON project.project_id = project_member.project_id
+		LEFT
+		JOIN user ON project_member.user_id = user.user_id
+		<where>
+			<if test="paging.select == 'status' and paging.search != null">
+				project.status LIKE CONCAT('%', #{paging.search}, '%')
+			</if>
+			<if test="paging.select == 'code' and paging.search != null">
+				project.project_code LIKE CONCAT('%', #{paging.search},
+				'%')
+			</if>
+			<if test="paging.select == 'name' and paging.search != null">
+				project.project_name LIKE CONCAT('%', #{paging.search},
+				'%')
+			</if>
+			<if test="paging.select == 'date' and paging.search != null">
+				#{paging.search} BETWEEN project.start_date AND
+				project.end_date
+			</if>
+			<if test="paging.select == 'manager' and paging.search != null">
+				user.name LIKE CONCAT('%', #{paging.search}, '%')
+			</if>
+		</where>
+	</select>
+
+	<select id="showLog" resultMap="projectMap">
+		SELECT DISTINCT p.project_id AS
+		projectId, p.project_name AS projectName, MAX(cl.log_id) AS
+		latest_log_id, MAX(cl.customer_id) AS latest_customer_id
+		FROM project p
+		LEFT JOIN customer_log cl ON (p.project_id = cl.project_id)
+		GROUP BY
+		p.project_id, p.project_name
+	</select>
+	<select id="userProjectTotal" resultType="int"
+		parameterType="Paging">
+		SELECT COUNT(DISTINCT project.project_id)
+		FROM project
+		LEFT JOIN
+		project_member ON project.project_id = project_member.project_id
+		LEFT
+		JOIN user ON project_member.user_id = user.user_id
+		<where>
+			project_member.user_id = #{paging.userId}
+			<if test="paging.search != null and paging.search != ''">
+				<choose>
+					<when test="paging.select == 'status'">
+						AND project.status LIKE CONCAT('%',
+						#{paging.search}, '%') </when>
+					<when test="paging.select == 'code'"> AND project.project_code LIKE CONCAT('%',
+						#{paging.search}, '%') </when>
+					<when test="paging.select == 'name'"> AND
+						project.project_name LIKE CONCAT('%',
+						#{paging.search}, '%') </when>
+					<when test="paging.select == 'date'"> AND #{paging.search} BETWEEN project.start_date
+						AND project.end_date
+					</when>
+				</choose>
+			</if>
+		</where>
+	</select>
+</mapper>

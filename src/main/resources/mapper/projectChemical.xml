@@ -1,0 +1,84 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sh.haagendazo.mapper.ProjectChemicalMapper">
+
+<resultMap type="Project" id="projectChemical">
+    <id property="projectId" column="projectId"/>
+    <result property="projectCode" column="projectCode"/>
+    <result property="projectName" column="projectName"/>
+    <result property="projectType" column="projectType"/>
+    <result property="userId" column="userId"/>
+    <result property="startDate" column="startDate"/>
+    <result property="endDate" column="endDate"/>
+    <result property="status" column="status"/>
+    <result property="description" column="description"/>
+    <result property="createdAt" column="createdAt"/>
+    <result property="updatedAt" column="updatedAt"/>
+    <result property="memberId" column="memberId"/>
+    <result property="memberUserId" column="memberUserId"/>
+    <result property="memberRole" column="memberRole"/>
+    <result property="memberCreatedAt" column="memberCreatedAt"/>
+    <result property="userUserId" column="userUserId"/>
+    <result property="email" column="email"/>
+    <result property="password" column="password"/>
+    <result property="name" column="name"/>
+    <result property="deptId" column="deptId"/>
+    <result property="gradeId" column="gradeId"/>
+    <result property="userCreatedAt" column="userCreatedAt"/>
+    <result property="projectChemicalId" column="projectChemicalId"/>
+    <result property="pcChemicalId" column="pcChemicalId"/>
+    <result property="pcUserId" column="pcUserId"/>
+    <result property="usedQty" column="usedQty"/>
+    <result property="usedAt" column="usedAt"/>
+    <result property="chemicalId" column="chemicalId"/>
+    <result property="chemicalName" column="chemicalName"/>
+    <result property="casNo" column="casNo"/>
+    <result property="storageUnit" column="storageUnit"/>
+    <result property="storageId" column="storageId"/>
+    <result property="stockQty" column="stockQty"/>
+    <result property="storageUnit" column="storageUnit"/>
+    <result property="thresholdQty" column="thresholdQty"/>
+    <result property="cCreatedAt" column="cCreatedAt"/>
+    <result property="approvalId" column="approvalId"/>
+    <result property="approvalProjectId" column="approvalProjectId"/>
+    <result property="requestedBy" column="requestedBy"/>
+    <result property="approvalType" column="approvalType"/>
+    <result property="targetId" column="targetId"/>
+    <result property="approvalStatus" column="approvalStatus"/>
+    <result property="comment" column="comment"/>
+    <result property="approvedBy" column="approvedBy"/>
+    <result property="approvedAt" column="approvedAt"/>
+</resultMap>
+<select id="projectChemicalList" resultMap="projectChemical" parameterType="int">
+	SELECT
+	    c.chemical_name AS chemicalName,
+	    c.cas_no AS casNo,
+	    c.storage_unit AS storageUnit,
+	    SUM(pc.used_qty) AS usedQty
+	FROM project_chemical AS pc
+	JOIN chemical AS c 
+		ON pc.chemical_id = c.chemical_id
+	WHERE pc.project_id = #{projectId}
+	    AND pc.is_approved = TRUE
+	GROUP BY c.chemical_name, c.cas_no, c.storage_unit
+</select>
+
+<!-- 시약 조회 -->
+<select id="chemicalList" resultMap="projectChemical">
+	SELECT 
+		chemical_id AS chemicalId, 
+		chemical_name AS chemicalName 
+	FROM chemical
+</select>
+
+<!-- 시약 추가: 요청 넣으면 project_chemical에 들어감 -->
+<insert id="additionNotApprovedChemical" parameterType="list" useGeneratedKeys="true" keyProperty="projectChemicalId">
+	INSERT INTO project_chemical(project_id, chemical_id, user_id, used_qty, is_approved) VALUES
+		(#{projectId}, #{chemicalId}, #{userId}, 0, FALSE)
+</insert>
+
+<!-- 시약 추가 승인요청 -->
+<insert id="pcAdd" parameterType="Approval">
+	INSERT INTO approval(project_id, requested_by, approval_type, approval_content, target_id) 
+	VALUES(#{projectId}, #{userId}, #{approvalType}, #{approvalContent}, #{projectChemicalId});
+</insert>
+</mapper>

@@ -1,0 +1,199 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sh.haagendazo.mapper.ScheduleMapper">
+	<resultMap id="ScheduleMap" type="Schedule">
+		<id property="scheduleId" column="schedule_id" />
+		<result property="title" column="title" />
+		<result property="description" column="description" />
+		<result property="userId" column="user_id" />
+		<result property="projectId" column="project_id" />
+		<result property="startDatetime" column="start_datetime" />
+		<result property="endDatetime" column="end_datetime" />
+		<result property="createdAt" column="created_at" />
+	</resultMap>
+
+	<resultMap id="ProjectMap" type="Project">
+		<id property="projectId" column="project_id" />
+		<result property="projectName" column="project_name" />
+		<result property="startDate" column="start_date" />
+		<result property="endDate" column="end_date" />
+	</resultMap>
+
+	<resultMap id="ScheduleProjectMap" type="Project">
+		<id property="scheduleId" column="schedule_id" />
+		<result property="title" column="title" />
+		<result property="scheDescription" column="scheDescription" />
+		<result property="scheUserId" column="scheUserId" />
+		<result property="scheProjectId" column="scheProjectId" />
+		<result property="scheStartDatetime" column="scheStartDatetime" />
+		<result property="scheEndDatetime" column="scheEndDatetime" />
+		<result property="scheCreatedAt" column="scheCreatedAt" />
+
+		<result property="projectId" column="project_id" />
+		<result property="projectName" column="project_name" />
+		<result property="startDate" column="start_date" />
+		<result property="endDate" column="end_date" />
+
+		<result property="memberId" column="member_id" />
+		<result property="memberUserId" column="memberUserId" />
+		<result property="memberRole" column="member_role" />
+		<result property="memberCreatedAt" column="memberCreatedAt" />
+
+		<result property="userUserId" column="userUserId" />
+		<result property="name" column="name" />
+		<result property="deptId" column="dept_id" />
+		<result property="gradeId" column="grade_id" />
+	</resultMap>
+
+	<insert id="insertSchedule" parameterType="Schedule" useGeneratedKeys="true" keyProperty="scheduleId">
+		INSERT INTO schedule (
+		title,
+		description,
+		user_id,
+		project_id,
+		start_datetime,
+		end_datetime,
+		created_at
+		) VALUES (
+		#{title},
+		#{description},
+		#{userId},
+		#{projectId},
+		#{startDatetime},
+		#{endDatetime},
+		NOW()
+		)
+	</insert>
+	
+	<insert id="scheduleMessage" parameterType="Schedule">
+		INSERT INTO message (
+		title,
+		content,
+		type,
+		target_id,
+		receiver_id)
+		VALUES (
+		#{title},
+		#{description},
+		'schedule',
+		#{scheduleId},
+		#{userId}
+		)
+	</insert>
+	
+	<update id="projectScheduleUpdate" parameterType="Schedule">
+		UPDATE schedule
+		SET description = #{description}, start_datetime =
+		#{startDatetime},
+		end_datetime = #{endDatetime}
+		WHERE schedule_id = #{scheduleId}
+	</update>
+
+	<select id="projectCal" resultMap="ScheduleProjectMap"
+		parameterType="int">
+		SELECT DISTINCT project.project_id,
+		project_name, start_date, end_date
+		FROM project
+		LEFT JOIN project_member ON project.project_id =project_member.project_id
+		LEFT JOIN user ON project_member.user_id = user.user_id
+		<where>
+			<if test="role == 'ROLE_RESEARCHER'">
+				user.user_id = #{userId};
+			</if>
+		</where>
+	</select>
+
+	<select id="scheduleCal" resultMap="ScheduleMap"
+		parameterType="int">
+		SELECT schedule_id, title,
+		start_datetime, end_datetime, project_id
+		FROM schedule
+		<where>
+			<if test="role == 'ROLE_RESEARCHER'">
+				user_id = #{userId};
+			</if>
+		</where>
+	</select>
+
+	<select id="todayUser" resultMap="ScheduleProjectMap"
+		parameterType="Paging">
+		SELECT DISTINCT schedule.schedule_id,
+		schedule.title,
+		schedule.description AS scheDescription,
+		schedule.user_id AS scheUserId,
+		schedule.project_id AS scheProjectId,
+		schedule.start_datetime AS scheStartDatetime,
+		schedule.end_datetime AS scheEndDatetime,
+		schedule.created_at AS scheCreatedAt,
+
+		project.project_id,
+		project.project_name,
+		project.start_date,
+		project.end_date,
+
+		project_member.member_id,
+		project_member.user_id AS memberUserId,
+		project_member.role AS memberRole,
+		project_member.created_at AS memberCreatedAt,
+
+		user.user_id AS userUserId,
+		user.name,
+		user.dept_id,
+		user.grade_id
+		FROM schedule
+		LEFT JOIN project
+		ON schedule.project_id = project.project_id
+		LEFT JOIN project_member
+		ON project.project_id = project_member.project_id
+		AND project_member.user_id = schedule.user_id
+		LEFT JOIN user
+		ON project_member.user_id = user.user_id
+		<where>
+			<if test="role == 'ROLE_RESEARCHER'">
+				schedule.user_id = #{userId}
+			</if>
+
+			AND NOW() BETWEEN schedule.start_datetime AND schedule.end_datetime
+
+			<if test="keyword != null and keyword != ''">
+				AND (
+				project.project_name LIKE CONCAT('%', #{keyword}, '%')
+				OR user.name LIKE CONCAT('%', #{keyword}, '%')
+				OR schedule.title LIKE CONCAT('%', #{keyword}, '%')
+				)
+			</if>
+		</where>
+		ORDER BY schedule.start_datetime
+		LIMIT #{limit} OFFSET #{offset}
+	</select>
+	
+<select id="todayUserTotal" resultType="int" parameterType="Paging">
+    SELECT COUNT(*) 
+    FROM schedule
+    LEFT JOIN project 
+           ON schedule.project_id = project.project_id
+    LEFT JOIN project_member 
+           ON project.project_id = project_member.project_id 
+          AND project_member.user_id = schedule.user_id
+    LEFT JOIN user 
+           ON project_member.user_id = user.user_id
+    <where>
+        <if test="role == 'ROLE_RESEARCHER'">
+            schedule.user_id = #{userId}
+        </if>
+        
+        AND NOW() BETWEEN schedule.start_datetime AND schedule.end_datetime
+        
+        <if test="keyword != null and keyword != ''">
+            AND (
+                project.project_name LIKE CONCAT('%', #{keyword}, '%')
+                OR user.name LIKE CONCAT('%', #{keyword}, '%')
+                OR schedule.title LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+    </where>
+</select>
+	<delete id="scheduleDelete" parameterType="int">
+		DELETE FROM schedule
+		WHERE schedule_id = #{scheduleId}
+	</delete>
+</mapper>

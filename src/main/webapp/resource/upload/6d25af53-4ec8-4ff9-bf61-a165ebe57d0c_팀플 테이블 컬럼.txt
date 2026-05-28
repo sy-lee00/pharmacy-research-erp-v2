@@ -1,0 +1,148 @@
+[user_info]
+
+user_no: 사용자 고유 번호
+
+name: 사용자 이름
+
+email: 로그인/알림용 이메일
+
+id: 아이디
+
+pwd: 패스워드
+
+phone: 연락처
+
+addr: 주소
+
+gender: 성별
+
+hire_date : 입사일
+
+quit_date : 퇴사일
+
+birth_date: 생일 
+
+dept_no: 부서
+
+grade_no:  직급
+
+[project]
+
+- pro_no: 프로젝트 고유 번호
+
+- pro_title: 프로젝트 이름
+
+- pro_desc: 프로젝트 설명
+
+- start_date: 시작 날짜
+
+- end_date: 완료 예정 날짜
+
+- due_date: 마감일자 
+
+- status: 상태 (진행전, 진행, 완료 등)
+
+- customer_no: 고객
+
+- user_no: 담당자
+
+[project_members]
+
+- project_id: 프로젝트 ID (Projects.id 참조)
+
+- user_id: 참여자 사용자 ID (Users.id 참조)
+
+- role: 프로젝트 내 역할
+
+- join_date: 참여 시작일
+
+[task]
+
+- task_no: 업무 고유 번호
+
+- project_no: 소속 프로젝트 ID
+
+- task_title: 업무 제목
+
+- task_desc: 업무 상세 내용
+
+- user_no: 담당자
+
+- due_date: 마감일
+
+- status: 업무 상태  (진행전, 진행, 완료 등)
+
+- priority: 우선순위
+
+- created_at: 생성일
+
+- updated_at: 최근 수정일
+
+
+[customer]
+
+- cusotmer_no: 고객 고유 번호
+
+- name: 고객 이름
+
+- email: 연락 이메일
+
+- phone: 연락 전화번호
+
+- notes: 비고
+
+- created_date: 등록일
+
+- user_no: 관리직원
+
+[customer_log] - 고객관계관리
+
+- log_no: 기록 고유 번호
+
+- customer_no : 고객 no
+
+- user_no: 기록 작성자 no
+
+- date: 접촉 날짜
+
+- type: 접촉 방식 (전화, 이메일 등)
+
+- notes: 메모
+
+ schedule (일정 관리 테이블)
+
+- sche_no : 일정 고유 번호
+
+- sche_title : 일정명
+
+- desc : 일정 설명
+
+- start_date : 일정 시작일
+
+- end_date : 일정 종료일
+
+- location : 일정 장소
+
+- type : 유형(프로젝트/ 일정관리)
+
+- project_no : 프로젝트 fk
+
+- user_no : 담당자
+
+- created_date : 생성일
+
+- update_date : 수정일
+
+[department]
+
+- dept_no : 부서 고유번호
+
+- dept_name : 부서 명
+
+- dept_color : 부서별 일정 색상
+
+[grade]
+
+- grade_no : 직급 고유번호
+
+- grade_name : 직급명

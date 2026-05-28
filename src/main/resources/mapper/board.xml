@@ -1,0 +1,90 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sh.haagendazo.mapper.BoardMapper">
+	
+	<resultMap id="boardMap" type="Board">
+    <id property="boardNo" column="board_no"/>
+    <result property="type" column="type"/>
+    <result property="title" column="title"/>
+    <result property="content" column="content"/>
+    <result property="url" column="url"/> 
+    <result property="userId" column="user_id"/> 
+    <result property="customerId" column="customer_id"/> 
+    <result property="uploaderType" column="uploader_type"/> 
+    <result property="uploaderName" column="uploader_name"/> 
+    <result property="uploadedBy" column="uploaded_by"/> 
+    <result property="uploadedAt" column="uploaded_at"/> 
+    <result property="updatedAt" column="updated_at"/>  
+    <result property="formatDate" column="format_date"/> 
+    </resultMap>
+    
+	<insert id="addBoard" parameterType="Board">
+		INSERT INTO board (type, uploader_type, uploaded_by, title, content, url)
+		VALUES(#{type}, #{uploaderType}, #{uploadedBy}, #{title}, #{content}, #{url})
+	</insert>
+
+	<update id="updateBoard" parameterType="Board">
+		UPDATE board SET title= #{title}, content= #{content}, url= #{url}, updated_at= NOW() WHERE board_no = #{boardNo}
+	</update>
+	
+	<delete id="deleteBoard" parameterType="int">
+		DELETE FROM board WHERE board_no = #{boardNo}
+	</delete>
+	
+	<select id="selectBoard" parameterType="int" resultMap="boardMap">
+		SELECT DISTINCT b.board_no AS board_no, b.url, b.type, b.title, b.content, b.uploader_type, b.uploaded_by, b.uploaded_at, b.updated_at, COALESCE(u.name, c.name) AS uploader_name
+		FROM board b
+		LEFT JOIN user u ON (uploaded_by = user_id) AND b.uploader_type = 'user'
+		LEFT JOIN customer c ON (uploaded_by = customer_id) AND b.uploader_type = 'customer'
+        LEFT JOIN customer_log USING (customer_id)
+		WHERE board_no= #{boardNo}
+	</select>
+	
+	<select id="showBoard" parameterType="Paging" resultMap="boardMap">
+		SELECT DISTINCT b.board_no AS board_no, b.url, b.type, b.title, b.content, b.uploader_type, b.uploaded_by, b.uploaded_at, b.updated_at, COALESCE(u.name, c.name) AS uploader_name
+		FROM board b
+		LEFT JOIN user u ON (uploaded_by = user_id) AND b.uploader_type = 'user'
+		LEFT JOIN customer c ON (uploaded_by = customer_id) AND b.uploader_type = 'customer'
+        LEFT JOIN customer_log USING (customer_id)
+		<where>
+		<if test="keyword != null and keyword != ''">
+			<choose>
+			<when test="select == 'title'">
+			b.title LIKE CONCAT('%',#{keyword},'%')
+			</when>
+			<when test="select == 'uploadedBy'">
+			COALESCE(u.name, c.name) LIKE CONCAT('%',#{keyword},'%')
+			</when>
+			</choose>
+		</if>
+		</where>
+		LIMIT #{offset}, #{limit}
+	</select>
+	
+	<select id="showNotice" resultMap="boardMap">
+		SELECT DISTINCT board_no, title, content, type, uploaded_by, uploaded_at, updated_at 
+		FROM board LEFT JOIN customer ON (uploaded_by = customer_id) LEFT JOIN customer_log USING (customer_id) LEFT JOIN user ON (assign_id = user_id) WHERE type = 'notice'
+		ORDER BY updated_at DESC
+		LIMIT #{offset}, #{limit}
+	</select>
+	
+	<select id="total" parameterType="Paging" resultType="int">
+		SELECT COUNT(DISTINCT b.board_no) 
+		FROM board b
+		LEFT JOIN user u ON (uploaded_by = user_id) AND b.uploader_type = 'user'
+		LEFT JOIN customer c ON (uploaded_by = customer_id) AND b.uploader_type = 'customer'
+		LEFT JOIN customer_log USING (customer_id)
+		<where>
+		<if test="keyword != null and keyword != ''">
+			<choose>
+			<when test="select == 'title'">
+			b.title LIKE CONCAT('%',#{keyword},'%')
+			</when>
+			<when test="select == 'uploadedBy'">
+			COALESCE(u.name, c.name) LIKE CONCAT('%',#{keyword},'%')
+			</when>
+			</choose>
+		</if>
+		</where>
+	</select>
+
+</mapper>

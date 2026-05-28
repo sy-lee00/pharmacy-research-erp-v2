@@ -1,0 +1,316 @@
+:root {
+  --main-color: #fcf6f5;
+  --main-back: #a4193d;
+  --pd-left: 270px;
+  --pd-top: 70px;
+}
+
+/*
+  페이지 전체 레이아웃
+*/
+body {
+  background-color: #fcf6f550;
+  padding-left: var(--pd-left);
+  padding-top: var(--pd-top);
+  overflow: auto;
+}
+
+@font-face {
+  font-family: 'NanumSqR';
+  src: url('../fonts/NanumSquareRoundB.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+/*
+  헤더바 전체 컨테이너
+*/
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: calc(var(--pd-top) + 5px);
+  background-color: var(--main-back);
+  /*background: linear-gradient(to right, #a4193d, #a4193d, #a4193d, #253986, #000);*/
+  color: var(--main-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/*
+  회사 로고 제목
+*/
+.company {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: var(--main-color);
+  margin: 0;
+  padding: 0;
+}
+
+/*
+  헤더 검색 폼 스타일
+*/
+.header-search {
+  display: flex;
+  align-items: center;
+  margin-right: 750px; /* 우측 여백을 최대로 늘려 다음 요소(링크)를 오른쪽으로 밀어냄 */
+  margin-left: 90px; /* 로고와의 간격 */
+  gap: 10px; /* 입력창과 버튼 사이 간격 */
+}
+
+.header-search #search {
+  width: 350px; /* 적당한 너비로 조정 */
+  padding: 6px 10px;
+  border-radius: 4px;
+  background-color: var(--main-color);
+  color: var(--main-back);
+  transition: width 0.3s ease;
+  /* 돋보기 아이콘 추가 */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>');
+  background-repeat: no-repeat;
+  background-position: right 8px center; /* 오른쪽에서 8px 떨어진 위치에 배치 */
+  background-size: 16px;
+}
+
+.header-search input[type="text"]:focus {
+  width: 350px; /* 포커스 시 너비 확장 효과 */
+  outline: none;
+  border: 1px solid #fff;
+  border-radius: 4px;
+  border-color: var(--main-color);
+}
+
+.header-search button {
+  padding: 6px 12px;
+  border: none;
+  background-color: var(--main-color);
+  color: var(--main-back);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.header-search button:hover {
+  background-color: #FFDFB9;
+}
+
+/*
+  링크들을 담는 컨테이너
+*/
+.header-links {
+  display: flex;
+  align-items: center;
+  gap: 20px; /* 링크들 사이의 간격 */
+}
+
+/*
+  링크 스타일 (이전과 동일)
+*/
+.header-links p,
+.header-links div {
+  display: flex;
+  align-items: center;
+}
+
+.header-links a {
+  color: var(--main-color);
+  text-decoration: none;
+  font-size: 1em;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.header-links a:hover {
+  color: #FFDFB9;
+}
+
+.header-links {
+  margin-right: 50px !important;
+}
+
+.logo {
+  margin: 0;
+}
+/* 로그인 사용자 이름 스타일 */
+#userName {
+  color: rgb(255, 232, 159);
+  font-weight: bold;
+  position: relative; /* 툴팁 위치 지정을 위해 필요 */
+}
+
+/* 권한 표시 툴팁 */
+.role-tooltip {
+  display: none; /* 기본적으로 숨김 */
+  position: absolute;
+  bottom: -30px; /* 링크 아래쪽에 위치 */
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #555;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+  font-size: 0.9em;
+  z-index: 10;
+}
+
+.header-links a.user-name:hover .role-tooltip {
+  display: block; /* 마우스 오버 시 표시 */
+}
+
+/*
+  사이드바 전체 컨테이너
+*/
+.side {
+  position: fixed; /* 페이지 스크롤과 무관하게 고정 */
+  top: 0;
+  left: 0;
+  width: 240px; /* 사이드바 너비 */
+  height: 100vh; /* 화면 전체 높이 */
+  color: #ecf0f1; /* 밝은 텍스트 색상 */
+  padding: 20px 10px;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s ease; /* 너비 변경 애니메이션 */
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-image: url(../static/lab2.jpg);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-blend-mode: color;
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: 99;
+}
+/*
+  로고 스타일
+*/
+.side .logo {
+  margin-bottom: 60px;
+  text-align: center;
+}
+
+.side .logo a {
+  display: block;
+  height: 15px; /* 로고 이미지 높이 */
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  text-indent: -9999px; /* 텍스트 숨기기 */
+}
+
+.content {
+  margin-left: 240px; /* 사이드바 너비만큼 띄우기 */
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/*
+  메뉴 그룹 스타일
+*/
+.side nav {
+  flex-grow: 1; /* 남은 공간을 채우도록 */
+}
+
+.menu-group {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+}
+
+.menu-group:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.menu-title {
+  font-weight: bold;
+  font-size: 1.1em;
+  padding: 10px 0;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: color 0.2s ease;
+}
+
+.menu-title:hover {
+  zoom: 103%;
+}
+
+.menu-title::after {
+  font-size: 0.8em;
+  transform: rotate(-90deg);
+  transition: transform 0.2s ease;
+}
+
+.menu-group.open .menu-title::after {
+  transform: rotate(0deg);
+}
+
+/*
+  활성화된 메인 메뉴 타이틀 스타일
+*/
+.menu-title.active {
+  color: var(--main-color);
+  background-color: #fff3;
+  border-radius: 5px;
+  padding: 10px;
+}
+
+/*
+  서브메뉴 스타일
+*/
+.submenu {
+  flex-direction: column;
+  padding-left: 15px;
+  margin-top: 5px;
+  overflow: hidden;
+}
+
+.menu-group.open .submenu {
+  display: flex; /* 'open' 클래스 있을 때 보임 */
+}
+
+.submenu a {
+  color: #bdc3c7;
+  text-decoration: none;
+  padding: 8px 0;
+  display: block;
+  transition: color 0.2s ease, padding-left 0.2s ease;
+}
+
+.submenu a:hover {
+  color: var(--main-color);
+  padding-left: 5px;
+}
+
+.submenu a.active {
+  color: var(--main-color);
+  font-weight: bold;
+  border-left: 3px solid var(--main-color);
+  padding-left: 10px;
+}
+
+/* ================ 공통 input/select/textarea ============== */
+input[type="text"],
+input[type="number"]:not(#usedQtyInput),
+input[type="date"],
+input[type="datetime-local"],
+select,
+textarea {
+  width: 200px;
+  padding: 4px 6px;
+  margin: 2px 0;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+

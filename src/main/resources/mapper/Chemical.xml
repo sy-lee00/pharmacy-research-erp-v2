@@ -1,0 +1,264 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sh.haagendazo.mapper.ChemicalMapper">
+
+	<resultMap type="Chemical" id="chemicalMap">
+		<id property="chemicalId" column="chemical_id" />
+		<result property="chemicalName" column="chemical_name"/>
+		<result property="casNo" column="cas_no"/>
+		<result property="storageUnit" column="storage_unit"/>
+		<result property="storageId" column="storage_id"/>
+		<result property="stockQty" column="stock_qty"/>
+		<result property="thresholdQty" column="threshold_qty"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="storageName" column="storage_name"/>
+		<result property="storageLocation" column="storage_location"/>
+	</resultMap>
+	
+	<select id="viewChemical" resultMap="chemicalMap">
+		SELECT 
+			c.chemical_id,
+			c.chemical_name,
+		    c.cas_no,
+		    c.stock_qty,
+		    c.storage_unit,
+		    c.storage_id,
+		    c.threshold_qty,
+		    c.created_at,
+		    s.storage_name,
+		    s.location 
+		FROM chemical c 
+		JOIN storage s 
+			ON c.storage_id = s.storage_id
+		<where>
+			<if test="paging.search != null and paging.select != null">
+				<choose>
+					<when test="paging.select == 'name'">
+						c.chemical_name LIKE CONCAT('%', #{paging.search}, '%')
+					</when>
+					<when test="paging.select == 'cas_no'">
+						c.cas_no LIKE CONCAT('%', #{paging.search}, '%')
+					</when>
+				</choose>
+			</if>
+			<if test="paging.storageId != null and paging.storageId != 0">
+				AND c.storage_id = #{paging.storageId}
+			</if>
+		</where>
+		ORDER BY c.chemical_name
+		LIMIT #{paging.offset}, #{paging.limit}
+	</select>
+	
+	<select id="total" resultType="int">
+		SELECT COUNT(*) FROM chemical
+		<where>
+			<if test="paging.search != null and paging.select != null">
+				<choose>
+					<when test="paging.select == 'name'">
+						chemical_name LIKE CONCAT('%', #{paging.search}, '%')
+					</when>
+					<when test="paging.select == 'cas_no'">
+						cas_no LIKE CONCAT('%', #{paging.search}, '%')
+					</when>
+				</choose>
+			</if>
+			<if test="paging.storageId != null and paging.storageId != 0">
+				AND storage_id = #{paging.storageId}
+			</if>
+		</where>
+	</select>
+	
+	<update id="modifyChemical" parameterType="Chemical">
+		UPDATE chemical SET stock_qty = #{stockQty}
+		WHERE chemical_id = #{chemicalId}
+	</update>
+	
+	<insert id="addChemical" parameterType="Chemical">
+		INSERT INTO chemical(chemical_name, cas_no, storage_unit, storage_id, stock_qty, threshold_qty) 
+		VALUES(#{chemicalName}, #{casNo}, #{storageUnit}, #{storageId}, #{stockQty}, #{thresholdQty})
+	</insert>
+	
+	<delete id="deleteChemical" parameterType="ArrayList">
+		DELETE FROM chemical WHERE chemical_id IN 
+		<foreach collection="chemList" item="chemicalId" open="(" close=")" separator=",">
+			#{chemicalId}
+		</foreach>
+	</delete>
+	
+	<select id="viewStorageName" parameterType="int" resultType="String">
+		SELECT storage_name FROM storage WHERE storage_id = #{storageId}
+	</select>
+	
+	<select id="viewAllStorageName" resultType="String">
+		SELECT distinct(storage_name) FROM storage
+	</select>
+	
+	<select id="selectStorageId" parameterType="String" resultType="int">
+		SELECT storage_id FROM storage WHERE storage_name = #{storageName}
+	</select>
+	
+	<resultMap type="Storage" id="storageMap">
+		<id property="storageId" column="storage_id" />
+		<result property="storageName" column="storage_name"/>
+		<result property="location" column="location"/>
+		<result property="type" column="type"/>
+		<result property="description" column="description"/>
+		<result property="chemicalId" column="chemical_id"/>
+	</resultMap>
+	
+	<select id="viewStorage" resultMap="storageMap">
+		SELECT 
+		    s.storage_id,
+		    s.storage_name,
+		    s.location,
+		    s.type,
+		    s.description,
+			COUNT(c.storage_id) AS stock
+		 FROM chemical AS c
+		 RIGHT JOIN storage AS s ON c.storage_id = s.storage_id
+		 GROUP BY s.storage_id
+	</select>
+	
+	<select id="viewStockChem" parameterType="int" resultMap="chemicalMap">
+		SELECT * FROM chemical WHERE storage_id = #{storageId}
+	</select>
+	
+<resultMap type="Project" id="projectChemical">
+    <!-- project -->
+    <id property="projectId" column="projectId"/>
+    <result property="projectCode" column="projectCode"/>
+    <result property="projectName" column="projectName"/>
+    <result property="projectType" column="projectType"/>
+    <result property="userId" column="userId"/>
+    <result property="startDate" column="startDate"/>
+    <result property="endDate" column="endDate"/>
+    <result property="status" column="status"/>
+    <result property="description" column="description"/>
+    <result property="createdAt" column="createdAt"/>
+    <result property="updatedAt" column="updatedAt"/>
+    <!-- project_member -->
+    <result property="memberId" column="memberId"/>
+    <result property="memberUserId" column="memberUserId"/>
+    <result property="memberRole" column="memberRole"/>
+    <result property="memberCreatedAt" column="memberCreatedAt"/>
+    <!-- user -->
+    <result property="userUserId" column="userUserId"/>
+    <result property="email" column="email"/>
+    <result property="password" column="password"/>
+    <result property="name" column="name"/>
+    <result property="deptId" column="deptId"/>
+    <result property="gradeId" column="gradeId"/>
+    <result property="userCreatedAt" column="userCreatedAt"/>
+    <!-- project_chemical -->
+    <result property="projectChemicalId" column="projectChemicalId"/>
+    <result property="pcChemicalId" column="pcChemicalId"/>
+    <result property="pcUserId" column="pcUserId"/>
+    <result property="usedQty" column="usedQty"/>
+    <result property="usedAt" column="usedAt"/>
+    <!-- chemical -->
+    <result property="chemicalId" column="chemicalId"/>
+    <result property="chemicalName" column="chemicalName"/>
+    <result property="casNo" column="casNo"/>
+    <result property="storageUnit" column="storageUnit"/>
+    <result property="storageId" column="storageId"/>
+    <result property="stockQty" column="stockQty"/>
+    <result property="thresholdQty" column="thresholdQty"/>
+    <result property="cCreatedAt" column="cCreatedAt"/>
+    <!-- approval -->
+    <result property="approvalId" column="approvalId"/>
+    <result property="approvalProjectId" column="approvalProjectId"/>
+    <result property="requestedBy" column="requestedBy"/>
+    <result property="approvalType" column="approvalType"/>
+    <result property="targetId" column="targetId"/>
+    <result property="approvalStatus" column="approvalStatus"/>
+    <result property="comment" column="comment"/>
+    <result property="approvedBy" column="approvedBy"/>
+    <result property="approvedAt" column="approvedAt"/>
+</resultMap>
+	
+	<select id="projectListOfUser" parameterType="User" resultMap="projectChemical">
+		SELECT
+			p.project_name AS projectName,
+			p.project_id AS projectId
+	    FROM project_member AS pm
+	    JOIN project AS p
+			ON pm.project_id = p.project_id
+	    JOIN user AS u
+			ON pm.user_id = u.user_id
+		<where>
+			<choose>
+				<when test="gradeId == 9">
+					<!-- 관리자는 모든 프로젝트 선택 가능 -->
+				</when>
+				<otherwise>
+					pm.user_id = #{userId}
+				</otherwise>
+			</choose>
+		</where>
+		GROUP BY projectName, projectId
+	</select>
+	
+	<select id="chemicalListOfProject" parameterType="int" resultMap="projectChemical">
+		SELECT 
+			c.chemical_id AS chemicalId, 
+		    c.chemical_name AS chemicalName, 
+		    c.cas_no AS casNo
+		FROM project_chemical AS pc
+			JOIN project AS p
+				ON pc.project_id = p.project_id
+			JOIN chemical AS c
+				ON pc.chemical_id = c.chemical_id
+		WHERE pc.project_id = #{projectId}
+			AND pc.is_approved = TRUE
+			AND pc.used_qty = 0
+		GROUP BY c.chemical_id, c.chemical_name, c.cas_no
+	</select>
+	
+	<select id="stockOfchemical" parameterType="int" resultType="Project">
+		SELECT 
+			pc.project_chemical_id AS projectChemicalId,
+			c.chemical_id AS chemicalId,
+			c.chemical_name AS chemicalName,
+			c.stock_qty AS stockQty,
+			c.threshold_qty AS thresholdQty,
+			c.storage_unit AS storageUnit
+		FROM project_chemical AS pc
+		JOIN project AS p 
+			ON pc.project_id = p.project_id
+		JOIN chemical AS c
+			ON pc.chemical_id = c.chemical_id
+		WHERE c.chemical_id = #{chemicalId}
+			AND pc.is_approved = 1
+			AND pc.used_qty = 0
+	</select>
+	
+	<!-- approvalType = Usage일 경우 -->
+	<insert id="requestUsageChemical" parameterType="Approval" useGeneratedKeys="true" keyProperty="projectChemicalId">
+		INSERT INTO project_chemical(project_id, chemical_id, user_id, used_qty, used_at, is_approved) VALUES
+		(#{projectId}, #{chemicalId}, #{userId}, #{usedQty}, NOW(), FALSE)
+	</insert>
+	
+	<!-- 시약 사용 승인요청 -->
+	<insert id="approvalRequestUsageChemical" parameterType="Approval">
+		INSERT INTO approval(project_id, requested_by, approval_type, approval_content, target_id) 
+		VALUES(#{projectId}, #{userId}, #{approvalType}, #{approvalContent}, #{projectChemicalId});
+	</insert>
+	
+	<!-- 시약 누적 바 그래프(현재 보유 시약량, 시약 총 사용량) -->
+	<select id="getChemicalChartData" resultType="Chemical">
+		SELECT
+			c.chemical_id AS chemicalId,
+			c.chemical_name AS chemicalName,
+			c.stock_qty AS stockQty,
+			COALESCE(pc_sum.total_used, 0) AS usedQty
+		FROM
+			chemical c
+		LEFT JOIN
+			(SELECT chemical_id, SUM(used_qty) AS total_used
+			 FROM project_chemical
+			 GROUP BY chemical_id) pc_sum
+		ON
+			c.chemical_id = pc_sum.chemical_id
+		ORDER BY c.chemical_id
+	</select>
+	
+</mapper>

@@ -1,0 +1,249 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sh.haagendazo.mapper.UserMapper">
+
+	<resultMap id="UserMap" type="User">
+		<id property="userId" column="user_id" />
+		<result property="email" column="email" />
+		<result property="password" column="password" />
+		<result property="pwd" column="pwd" />
+		<result property="name" column="name" />
+		<result property="createdAt" column="created_at" />
+		<result property="managerId" column="manager_id" />
+
+		<result property="gradeId" column="grade_id" />
+		<result property="gradeName" column="grade_name" />
+		<result property="role" column="role" />
+
+		<result property="deptId" column="dept_id" />
+		<result property="deptName" column="dept_name" />
+	</resultMap>
+
+	<resultMap id="MessageMap" type="Message">
+		<id property="messageNo" column="message_no" />
+		<result property="title" column="title" />
+		<result property="content" column="content" />
+		<result property="url" column="url" />
+		<result property="type" column="type" />
+		<result property="targetId" column="target_id" />
+		<result property="senderId" column="sender_id" />
+		<result property="sentAt" column="sent_at" />
+		<result property="receiverId" column="receiver_id" />
+		<result property="receivedAt" column="recived_at" />
+		<result property="isRead" column="is_read" />
+	</resultMap>
+
+	<resultMap id="DeptCountMap" type="map">
+		<result property="deptId" column="dept_id" />
+		<result property="deptName" column="dept_name" />
+		<result property="cnt" column="cnt" />
+	</resultMap>
+
+	<insert id="register" parameterType="User"
+		useGeneratedKeys="true" keyProperty="userId" keyColumn="user_id">
+		INSERT INTO
+		user(email, password, name, grade_id, dept_id) VALUES(#{email},
+		#{password}, #{name}, #{gradeId}, #{deptId})
+	</insert>
+
+	<select id="login" parameterType="User" resultMap="UserMap">
+		SELECT
+		user_id, email, password, name, grade_id, grade_name, role, dept_id,
+		dept_name
+		FROM user JOIN grade USING (grade_id)
+		JOIN department USING
+		(dept_id)
+		WHERE email= #{email}
+	</select>
+
+	<select id="selectAll" parameterType="Paging"
+		resultMap="UserMap">
+		SELECT * FROM user LEFT JOIN grade USING (grade_id) LEFT JOIN
+		department USING (dept_id)
+		<where>
+			<if test="search != null">
+				<choose>
+					<when test="select == 'name'">
+						name LIKE CONCAT ('%', #{search}, '%')
+					</when>
+					<when test="select == 'email'">
+						email LIKE CONCAT ('%', #{search}, '%')
+					</when>
+					<when test="select == 'gradeName'">
+						grade_name LIKE CONCAT ('%', #{search}, '%')
+					</when>
+					<when test="select == 'deptName'">
+						dept_name LIKE CONCAT ('%', #{search}, '%')
+					</when>
+				</choose>
+			</if>
+		</where>
+		<choose>
+			<when test="orderBy == 'name'">
+				ORDER BY name
+				<if test="orderDirection != null">
+					${orderDirection}
+				</if>
+				<if test="orderDirection == null">
+					ASC
+				</if>
+			</when>
+			<when test="orderBy == 'createdAt'">
+				ORDER BY created_at
+				<if test="orderDirection != null">
+					${orderDirection}
+				</if>
+				<if test="orderDirection == null">
+					ASC
+				</if>
+			</when>
+			<when test="orderBy == 'deptId'">
+				ORDER BY dept_id
+				<if test="orderDirection != null">
+					${orderDirection}
+				</if>
+				<if test="orderDirection == null">
+					ASC
+				</if>
+			</when>
+			<when test="orderBy == 'gradeId'">
+				ORDER BY grade_id
+				<if test="orderDirection != null">
+					${orderDirection}
+				</if>
+				<if test="orderDirection == null">
+					ASC
+				</if>
+			</when>
+			<otherwise>
+				ORDER BY user_id ASC
+			</otherwise>
+		</choose>
+		LIMIT #{offset}, #{limit}
+	</select>
+
+	<update id="updateUser" parameterType="User">
+		UPDATE user SET email=
+		#{email}, dept_id= #{deptId}, grade_id= #{gradeId}, manager_id=
+		#{managerId} WHERE user_id = #{userId}
+	</update>
+
+	<delete id="deleteUser" parameterType="User">
+		DELETE FROM user WHERE
+		user_id = #{userId}
+	</delete>
+
+	<select id="total" parameterType="Paging" resultType="int">
+		SELECT count(user_id) FROM user LEFT JOIN grade USING (grade_id) LEFT
+		JOIN department USING (dept_id)
+		<where>
+			<if test="search != null and search != ''">
+				<choose>
+					<when test="select == 'name'">
+						name LIKE CONCAT ('%', #{search}, '%')
+					</when>
+					<when test="select == 'email'">
+						email LIKE CONCAT ('%', #{search}, '%')
+					</when>
+					<when test="select == 'gradeName'">
+						grade_name LIKE CONCAT ('%', #{search}, '%')
+					</when>
+					<when test="select == 'deptName'">
+						dept_name LIKE CONCAT ('%', #{search}, '%')
+					</when>
+				</choose>
+			</if>
+		</where>
+	</select>
+
+	<select id="userGrade" resultMap="UserMap">
+		SELECT grade_id, grade_name
+		FROM grade
+	</select>
+
+	<select id="userDept" resultMap="UserMap">
+		SELECT dept_id, dept_name FROM
+		department
+	</select>
+
+	<select id="showCsdept" resultMap="UserMap">
+		SELECT user_id, name FROM user
+		LEFT JOIN grade USING (grade_id) LEFT JOIN department USING (dept_id)
+		WHERE dept_id = 15
+	</select>
+
+	<select id="showManager" parameterType="Paging"
+		resultMap="UserMap">
+		SELECT user_id, name, manager_id, dept_id
+		FROM user LEFT JOIN grade USING (grade_id) LEFT JOIN department USING
+		(dept_id)
+		<where>
+			<if test="gradeId == null and gradeId ==''">
+				grade_id >= 3
+			</if>
+			<if test="gradeId != null and gradeId !=''">
+				grade_id > #{gradeId}
+			</if>
+			<if test="deptId != null and deptId !=''">
+				dept_id = #{deptId}
+			</if>
+		</where>
+	</select>
+
+	<select id="count" parameterType="String" resultType="int">
+		SELECT count(user_id) FROM user LEFT JOIN grade USING (grade_id) LEFT
+		JOIN department USING (dept_id)
+		<where>
+			role = #{role}
+		</where>
+	</select>
+
+	<select id="messageView" resultMap="MessageMap"
+		parameterType="int">
+		SELECT message_no, title, content, is_read, sender_id, target_id,
+		receiver_id ,type
+		FROM message WHERE receiver_id = #{userId} ORDER BY
+		sent_at desc;
+	</select>
+
+	<select id="countSchedule" parameterType="int" resultType="int">
+		SELECT COUNT(*) FROM schedule JOIN message ON schedule_id = target_id
+		WHERE user_id = #{userId} AND NOW() BETWEEN schedule.start_datetime
+		AND schedule.end_datetime AND type='schedule' AND is_read = 0
+	</select>
+
+	<select id="countApproval" parameterType="int" resultType="int">
+		SELECT COUNT(*) from approval JOIN message ON approval.approval_id =
+		message.target_id where requested_by = #{userId} AND status='승인' AND
+		is_read = 0 AND message.type='approval' AND is_read = 0
+	</select>
+
+	<select id="countReject" parameterType="int" resultType="int">
+		SELECT COUNT(*) from approval JOIN message ON approval.approval_id =
+		message.target_id where requested_by = #{userId} AND status='반려' AND
+		is_read = 0 AND message.type='approval' AND is_read = 0
+	</select>
+
+	<select id="countClaim" parameterType="int" resultType="int">
+		SELECT COUNT(*) from customer_log JOIN message ON project_id = message.target_id
+		where receiver_id = #{userId} AND message.type='claim' AND is_read =
+		0
+	</select>
+
+	<update id="messageRead" parameterType="int">
+		UPDATE message SET
+		is_read = 1 WHERE message_no = #{messageNo}
+	</update>
+	<delete id="deleteMessage" parameterType="int">
+		DELETE FROM message
+		WHERE
+		message_no = #{messageNo}
+	</delete>
+	<select id="getDeptCounts" resultMap="DeptCountMap">
+		SELECT u.dept_id, d.dept_name, COUNT(u.user_id) AS cnt
+		FROM user u
+		JOIN department d ON u.dept_id = d.dept_id
+		WHERE u.dept_id != 16  <!-- 16번 부서 제외 -->
+		GROUP BY u.dept_id, d.dept_name
+		ORDER BY u.dept_id
+	</select>
+</mapper>

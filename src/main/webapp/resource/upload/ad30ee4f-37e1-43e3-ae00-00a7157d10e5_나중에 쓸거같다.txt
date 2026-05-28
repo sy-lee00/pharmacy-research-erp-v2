@@ -1,0 +1,15 @@
+SELECT 
+    project.project_id,
+    MAX(user.user_name) AS user_name, -- 예: 사용자 이름 중 가장 첫 번째 (또는 MAX)
+    COUNT(DISTINCT project_document.document_id) AS document_count, -- 문서 갯수
+    COUNT(DISTINCT approval.approval_id) AS approval_count, -- 승인 갯수
+    COUNT(DISTINCT project_chemical.chemical_id) AS chemical_count -- 화학 정보 갯수
+FROM project 
+LEFT JOIN project_member USING (project_id) 
+LEFT JOIN user ON project_member.user_id = user.user_id 
+LEFT JOIN project_document ON project.project_id = project_document.project_id 
+LEFT JOIN approval ON project.project_id = approval.project_id 
+LEFT JOIN project_chemical ON project.project_id = project_chemical.project_id
+WHERE project.project_id = 1
+GROUP BY project.project_id;
+나중에 

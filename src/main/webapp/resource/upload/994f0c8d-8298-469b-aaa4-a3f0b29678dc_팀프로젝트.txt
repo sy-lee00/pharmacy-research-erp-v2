@@ -1,0 +1,14 @@
+<영화 제작사>(임시) => 생산업체
+
+1. 프로젝트 관리
+	ㅁ프로젝트 : project_no(pk), title, desc, (director, actor, staff), start_date, end_date, status(진행상태), 
+	ㅁ부서 : dept_no(pk), dept_name, dept_color(색상-구분자)
+	ㅁ직원 : employee_no(pk), id, pwd, grade_name(직급명), name(사원명), age, gender, addr, phone, email, hire_date, dept_no(fk), 
+	
+2. (프로젝트) 일정 관리
+	ㅁ 프로젝트 스케쥴 : schedule_no(pk), sc_title, sc_desc, start_date, end_date, status, dept_color(fk)
+
+3. 고객 관계 관리
+	ㅁ 고객 정보 : user_no(pk), grade(고객등급), name, age, gender, addr, phone, email, manager(fk=employee_no)
+	ㅁ 
+

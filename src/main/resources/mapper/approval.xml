@@ -1,0 +1,446 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sh.haagendazo.mapper.ApprovalMapper">
+
+	<resultMap id="approvalMap" type="Approval">
+		<!-- approval -->
+		<id property="approvalId" column="approvalId" />
+		<result property="projectId" column="projectId" />
+		<result property="requestedBy" column="requestedBy" />
+		<result property="approvalType" column="approvalType" />
+		<result property="approvalContent" column="approvalContent" />
+		<result property="targetId" column="targetId" />
+		<result property="status" column="status" />
+		<result property="comment" column="comment" />
+		<result property="approvedBy" column="approvedBy" />
+		<result property="approvedAt" column="approvedAt" />
+		<!-- project -->
+		<result property="projectCode" column="projectCode" />
+		<result property="projectName" column="projectName" />
+		<result property="projectType" column="projectType" />
+		<!-- user -->
+		<result property="userId" column="userId" />
+		<result property="name" column="name" />
+		<result property="gradeId" column="gradeId" />
+		<!-- chemical -->
+		<result property="chemicalId" column="chemicalId" />
+		<result property="chemicalName" column="chemicalName" />
+		<result property="casNo" column="casNo" />
+		<result property="storageUnit" column="storageUnit" />
+		<result property="storageId" column="storageId" />
+		<result property="stockQty" column="stockQty" />
+		<result property="thresholdQty" column="thresholdQty" />
+		<!-- project_chemical -->
+		<result property="usedQty" column="usedQty" />
+		<!-- project_document -->
+		<result property="documentId" column="documentId" />
+		<result property="pdProjectId" column="pdProjectId" />
+		<result property="pdUserId" column="pdUserId" />
+		<result property="pdTitle" column="pdTitle" />
+		<result property="pdDesc" column="pdDesc" />
+		<result property="fileName" column="fileName" />
+		<result property="filePath" column="filePath" />
+		<result property="version" column="version" />
+		<result property="uploadedAt" column="uploadedAt" />
+	</resultMap>
+
+	<select id="allAprovalsList" resultMap="approvalMap">
+		WITH allApprovals AS (
+			SELECT
+			ap.approval_id AS approvalId,
+			ap.approval_type AS approvalType,
+			ap.approval_content AS approvalContent,
+			ap.status AS status,
+			ap.target_id AS targetId,
+			ap.requested_by AS requestedBy,
+		
+			p.project_id AS projectId,
+			p.project_name AS projectName,
+			p.project_code AS projectCode,
+		
+			c.chemical_id AS chemicalId,
+			c.chemical_name AS chemicalName,
+			c.cas_no AS casNo,
+			c.storage_unit AS storageUnit,
+		
+			NULL AS projectChemicalId,
+			NULL AS usedQty,
+			NULL AS usedAt,
+		
+			NULL AS documentId,
+			NULL AS fileName,
+			NULL AS pdTitle,
+			NULL AS version,
+		
+			u.user_id AS userId,
+			u.name AS name
+			FROM approval AS ap
+			JOIN project AS p
+				ON ap.project_id = p.project_id
+			JOIN user AS u
+				ON ap.requested_by = u.user_id
+			JOIN project_chemical AS pc
+				ON ap.target_id = pc.project_chemical_id
+			JOIN chemical AS c
+				ON pc.chemical_id = c.chemical_id
+			WHERE ap.approval_content = 'Addition'
+			UNION ALL
+			SELECT
+			ap.approval_id AS approvalId,
+			ap.approval_type AS approvalType,
+			ap.approval_content AS approvalContent,
+			ap.status AS status,
+			ap.target_id AS targetId,
+			ap.requested_by AS requestedBy,
+		
+			p.project_id AS projectId,
+			p.project_name AS projectName,
+			p.project_code AS projectCode,
+		
+			c.chemical_id AS chemicalId,
+			c.chemical_name AS chemicalName,
+			c.cas_no AS casNo,
+			c.storage_unit AS storageUnit,
+		
+			pc.project_chemical_id AS projectChemicalId,
+			pc.used_qty AS usedQty,
+			pc.used_at AS usedAt,
+		
+			NULL AS documentId,
+			NULL AS fileName,
+			NULL AS pdTitle,
+			NULL AS version,
+		
+			u.user_id AS userId,
+			u.name AS name
+			FROM approval AS ap
+			JOIN project AS p
+				ON ap.project_id = p.project_id
+			JOIN user AS u
+				ON ap.requested_by = u.user_id
+			JOIN project_chemical AS pc
+				ON ap.target_id = pc.project_chemical_id
+			JOIN chemical AS c
+				ON pc.chemical_id = c.chemical_id
+			WHERE ap.approval_content = 'Usage'
+			UNION ALL
+			SELECT
+			ap.approval_id AS approvalId,
+			ap.approval_type AS approvalType,
+			ap.approval_content AS approvalContent,
+			ap.status AS status,
+			ap.target_id AS targetId,
+			ap.requested_by AS requestedBy,
+		
+			p.project_id AS projectId,
+			p.project_name AS projectName,
+			p.project_code AS projectCode,
+		
+			NULL AS chemicalId,
+			NULL AS chemicalName,
+			NULL AS casNo,
+			NULL AS storageUnit,
+		
+			NULL AS projectChemicalId,
+			NULL AS usedQty,
+			NULL AS usedAt,
+		
+			pd.document_id AS documentId,
+			pd.file_name AS fileName,
+			pd.title AS pdTitle,
+			pd.version AS version,
+		
+			u.user_id AS userId,
+			u.name AS name
+			FROM approval AS ap
+			JOIN project AS p
+				ON ap.project_id = p.project_id
+			JOIN user AS u
+				ON ap.requested_by = u.user_id
+			JOIN project_document AS pd
+				ON ap.target_id = pd.document_id
+			WHERE ap.approval_type = 'document'
+		)
+		SELECT *
+		FROM allApprovals
+		<where>
+			<if test="paging.search != null and paging.search != ''">
+				<choose>
+					<when test="paging.select == 'projectName'">
+						AND projectName LIKE CONCAT('%', #{paging.search}, '%')
+					</when>
+					<when test="paging.select == 'projectCode'">
+						AND projectCode LIKE CONCAT('%', #{paging.search}, '%')
+					</when>
+					<when test="paging.select == 'chemicalName'">
+						AND chemicalName LIKE CONCAT('%', #{paging.search}, '%')
+					</when>
+					<when test="paging.select == 'casNo'">
+						AND casNo LIKE CONCAT('%', #{paging.search}, '%')
+					</when>
+					<when test="paging.select == 'pdTitle'">
+						AND pdTitle LIKE CONCAT('%', #{paging.search}, '%')
+					</when>
+					<when test="paging.select == 'version'">
+						AND version LIKE CONCAT('%', #{paging.search}, '%')
+					</when>
+				</choose>
+			</if>
+			<if test="paging.filterApprovalType != null and paging.filterApprovalType != 'allType' and paging.filterApprovalType != ''">
+				AND approvalType = #{paging.filterApprovalType}
+			</if>
+			<if test="paging.filterApprovalContent != null and paging.filterApprovalContent != 'allContent' and paging.filterApprovalContent != ''">
+				AND approvalContent = #{paging.filterApprovalContent}
+			</if>
+			<if test="paging.filterStatus != null and paging.filterStatus != 'allStatus' and paging.filterStatus != ''">
+				AND status = #{paging.filterStatus}
+			</if>
+			<if test="paging.userId != 0">
+				AND requestedBy = #{paging.userId}
+			</if>
+		</where>
+		<choose>
+			<when
+				test="paging.orderBy != null and paging.orderDirection != null">
+				ORDER BY ${paging.orderBy} #{paging.orderDirection}
+			</when>
+			<otherwise>
+				ORDER BY approvalId
+			</otherwise>
+		</choose>
+		LIMIT #{paging.offset}, #{paging.limit}
+	</select>
+
+	<select id="total" resultType="int">
+		WITH allApprovals AS (
+			SELECT
+			ap.approval_id AS approvalId,
+			ap.approval_type AS approvalType,
+			ap.approval_content AS approvalContent,
+			ap.status AS status,
+			ap.target_id AS targetId,
+			ap.requested_by AS requestedBy,
+		
+			p.project_id AS projectId,
+			p.project_name AS projectName,
+			p.project_code AS projectCode,
+		
+			c.chemical_id AS chemicalId,
+			c.chemical_name AS chemicalName,
+			c.cas_no AS casNo,
+			c.storage_unit AS storageUnit,
+		
+			NULL AS projectChemicalId,
+			NULL AS usedQty,
+			NULL AS usedAt,
+		
+			NULL AS documentId,
+			NULL AS fileName,
+			NULL AS pdTitle,
+			NULL AS version,
+		
+			u.user_id AS userId,
+			u.name AS name
+			FROM approval AS ap
+			JOIN project AS p
+				ON ap.project_id = p.project_id
+			JOIN user AS u
+				ON ap.requested_by = u.user_id
+			JOIN project_chemical AS pc
+				ON ap.target_id = pc.project_chemical_id
+			JOIN chemical AS c
+				ON pc.chemical_id = c.chemical_id
+			WHERE ap.approval_content = 'Addition'
+			UNION ALL
+			SELECT
+			ap.approval_id AS approvalId,
+			ap.approval_type AS approvalType,
+			ap.approval_content AS approvalContent,
+			ap.status AS status,
+			ap.target_id AS targetId,
+			ap.requested_by AS requestedBy,
+		
+			p.project_id AS projectId,
+			p.project_name AS projectName,
+			p.project_code AS projectCode,
+		
+			c.chemical_id AS chemicalId,
+			c.chemical_name AS chemicalName,
+			c.cas_no AS casNo,
+			c.storage_unit AS storageUnit,
+		
+			pc.project_chemical_id AS projectChemicalId,
+			pc.used_qty AS usedQty,
+			pc.used_at AS usedAt,
+		
+			NULL AS documentId,
+			NULL AS fileName,
+			NULL AS pdTitle,
+			NULL AS version,
+		
+			u.user_id AS userId,
+			u.name AS name
+			FROM approval AS ap
+			JOIN project AS p
+				ON ap.project_id = p.project_id
+			JOIN user AS u
+				ON ap.requested_by = u.user_id
+			JOIN project_chemical AS pc
+				ON ap.target_id = pc.project_chemical_id
+			JOIN chemical AS c
+				ON pc.chemical_id = c.chemical_id
+			WHERE ap.approval_content = 'Usage'
+			UNION ALL
+			SELECT
+			ap.approval_id AS approvalId,
+			ap.approval_type AS approvalType,
+			ap.approval_content AS approvalContent,
+			ap.status AS status,
+			ap.target_id AS targetId,
+			ap.requested_by AS requestedBy,
+		
+			p.project_id AS projectId,
+			p.project_name AS projectName,
+			p.project_code AS projectCode,
+		
+			NULL AS chemicalId,
+			NULL AS chemicalName,
+			NULL AS casNo,
+			NULL AS storageUnit,
+		
+			NULL AS projectChemicalId,
+			NULL AS usedQty,
+			NULL AS usedAt,
+		
+			pd.document_id AS documentId,
+			pd.file_name AS fileName,
+			pd.title AS pdTitle,
+			pd.version AS version,
+		
+			u.user_id AS userId,
+			u.name AS name
+			FROM approval AS ap
+			JOIN project AS p
+				ON ap.project_id = p.project_id
+			JOIN user AS u
+				ON ap.requested_by = u.user_id
+			JOIN project_document AS pd
+				ON ap.target_id = pd.document_id
+			WHERE ap.approval_type = 'document'
+		)
+		SELECT COUNT(*)
+		FROM allApprovals
+		<where>
+			<if test="paging.search != null and paging.search != ''">
+				<choose>
+					<when test="paging.select == 'projectName'">
+						AND projectName LIKE CONCAT('%', #{paging.search}, '%')
+					</when>
+					<when test="paging.select == 'projectCode'">
+						AND projectCode LIKE CONCAT('%', #{paging.search}, '%')
+					</when>
+					<when test="paging.select == 'chemicalName'">
+						AND chemicalName LIKE CONCAT('%', #{paging.search}, '%')
+					</when>
+					<when test="paging.select == 'casNo'">
+						AND casNo LIKE CONCAT('%', #{paging.search}, '%')
+					</when>
+					<when test="paging.select == 'pdTitle'">
+						AND pdTitle LIKE CONCAT('%', #{paging.search}, '%')
+					</when>
+					<when test="paging.select == 'version'">
+						AND version LIKE CONCAT('%', #{paging.search}, '%')
+					</when>
+				</choose>
+			</if>
+			<if test="paging.filterApprovalType != null and paging.filterApprovalType != 'allType' and paging.filterApprovalType != ''">
+				AND approvalType = #{paging.filterApprovalType}
+			</if>
+			<if test="paging.filterApprovalContent != null and paging.filterApprovalContent != 'allContent' and paging.filterApprovalContent != ''">
+				AND approvalContent = #{paging.filterApprovalContent}
+			</if>
+			<if test="paging.filterStatus != null and paging.filterStatus != 'allStatus' and paging.filterStatus != ''">
+				AND status = #{paging.filterStatus}
+			</if>
+			<if test="paging.userId != 0">
+				AND requestedBy = #{paging.userId}
+			</if>
+			
+		</where>
+		
+	</select>
+
+	<update id="processApproval" parameterType="list">
+		UPDATE approval
+		SET
+		comment = #{list[0].comment},
+		status = #{list[0].status},
+		approved_by = #{list[0].approvedBy},
+		approved_at = NOW()
+		WHERE approval_id IN
+		<foreach collection="list" item="item" open="(" separator=","
+			close=")">
+			#{item.approvalId}
+		</foreach>
+	</update>
+
+	<!-- 시약 사용: project_chemical에 허락된 사용량 표시 -->
+	<update id="approvedChemical" parameterType="list">
+		UPDATE project_chemical
+		SET
+		used_at = NOW(),
+		is_approved = TRUE
+		WHERE project_chemical_id IN
+		<foreach collection="list" item="item" open="(" separator=","
+			close=")">
+			#{item}
+		</foreach>
+	</update>
+
+	<!-- 시약 사용: chemical 재고 차감 -->
+	<update id="subtractStockOfChemical" parameterType="list">
+		UPDATE chemical
+		SET
+		stock_qty =
+		<foreach collection="list" item="item" open="CASE chemical_id"
+			close=" END">
+			WHEN #{item.chemicalId} THEN stock_qty - #{item.usedQty}
+		</foreach>
+		WHERE chemical_id IN
+		<foreach collection="list" item="item" open="(" separator=","
+			close=")">
+			#{item.chemicalId}
+		</foreach>
+	</update>
+
+	<insert id="approvalMessage" parameterType="Approval">
+		INSERT INTO message (
+		title,
+		content,
+		type,
+		target_id,
+		receiver_id)
+		VALUES (
+		CONCAT('요청하신 내용이 ', #{status}, ' 처리 되었습니다.'),
+		#{comment},
+		'approval',
+		#{approvalId},
+		#{requestedBy}
+		)
+	</insert>
+	
+	<select id="getApprovalStatusCounts" parameterType="User" resultType="Approval">
+	    SELECT 
+	        status, 
+	        COUNT(*) AS count
+	    FROM approval
+	    <where>
+	    	<choose>
+	    		<when test="gradeId == 1 || gradeId == 2">
+	    			requested_by = #{userId}
+	    		</when>
+	    		<otherwise></otherwise>
+	    	</choose>
+	    </where>
+	    GROUP BY status
+	</select>
+</mapper>
