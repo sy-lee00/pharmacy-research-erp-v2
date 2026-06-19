@@ -1,6 +1,6 @@
 # [제약회사 연구관리 ERP 시스템]  
 >**연구 데이터의 무결성과 행정 효율성을 위한 웹 애플리케이션 개발 프로젝트**  
-<img width="640" height="360" alt="메인페이지" src="https://github.com/user-attachments/assets/b47aeb10-f80b-4049-902b-1bb4ebf78262" />
+<img width="640" height="360" alt="메인페이지" src="https://github.com/user-attachments/assets/7c1d66d5-c3b3-45d8-8b8c-ad8cead2355a" />
 
 ---
 
