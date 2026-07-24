@@ -48,4 +48,5 @@
 ## 결과물
 - **Live Demo**: [[링크 연결]](https://pharmacy-research-erp.onrender.com/)  
     - id/pwd: david.lee3@naver.com / qwer1234
+    - 무료 배포 환경의 특성상 첫 접속 시 서버 기동에 약 1분 정도 소요될 수 있습니다.
 - **Source Code**: [[GitHub 링크]](https://github.com/sy-lee00/pharmacy-research-erp-v2.git)
